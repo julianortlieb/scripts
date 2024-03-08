@@ -44,8 +44,11 @@ fi
 
 # If swap is enabled, disable it
 if [ $SWAP_ENABLED -gt 1 ]; then
+    # Disable swap
     swapoff -a
-    sed -i '/swap/d' /etc/fstab
+
+    # Comment out the swap line in /etc/fstab
+    sed -i '/swap/s/^/#/' /etc/fstab
 fi
 
 # ------- Docker -------
