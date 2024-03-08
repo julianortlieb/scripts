@@ -43,7 +43,7 @@ if [ $SWAP_ENABLED -gt 1 ]; then
 fi
 
 # If swap should be disabled
-if [ $SWAP_ENABLED -eq 0 ]; then
+if [ $SWAP_ENABLED -eq 1 ]; then
     # Disable swap
     swapoff -a
 
