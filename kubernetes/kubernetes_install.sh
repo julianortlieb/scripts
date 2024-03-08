@@ -203,7 +203,7 @@ if [ $CREATE_CLUSTER -eq 0 ]; then
     POD_NETWORK_CIDR=$(whiptail --title "Pod Network CIDR" --inputbox "Enter the pod network CIDR" 10 60 3>&1 1>&2 2>&3)
 
     # Create the cluster with pod network cidr and cri dockerd socket and the right cluster name
-    kubeadm init --pod-network-cidr=$POD_NETWORK_CIDR --cri-socket=/var/run/cri-dockerd.sock
+    kubeadm init --pod-network-cidr=$POD_NETWORK_CIDR --cri-socket=unix:///var/run/cri-dockerd.sock
 
     # Copy the kubectl configuration to the user's home directory and create folder if it does not exist
     mkdir -p $HOME/.kube
