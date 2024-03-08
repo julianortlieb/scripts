@@ -102,8 +102,10 @@ fi
 
 # ------- Precheck -------
 # Check if port 6443 is open
-PORT_6443_OPEN=$(nc -zv
-localhost 6443 2>&1 | grep succeeded | wc -l)
+PORT_6443_OPEN=$(
+    nc -zv
+    localhost 6443 2>&1 | grep succeeded | wc -l
+)
 
 # If port 6443 is not open
 if [ $PORT_6443_OPEN -eq 0 ]; then
@@ -139,7 +141,7 @@ apt-mark hold kubelet kubeadm kubectl
 # Configure kubernetes to use the same cgroup driver as docker
 if [ $CGROUP_DRIVER == "systemd" ]; then
     # Add the cgroup driver to the kubelet configuration
-    echo "KUBELET_EXTRA_ARGS=--cgroup-driver=$CGROUP_DRIVER" > /etc/default/kubelet
+    echo "KUBELET_EXTRA_ARGS=--cgroup-driver=$CGROUP_DRIVER" >/etc/default/kubelet
 fi
 
 # ------- Postcheck -------
@@ -199,7 +201,47 @@ if [ $CREATE_CLUSTER -eq 0 ]; then
 
     # Apply the pod network
     kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+    # Save the token and hash in a file
+    kubeadm token create --print-join-command >/root/join-cluster.sh
 fi
+
+# ------- Load Balancer -------
+# Ask user via whiptail if a load balancer should be installed
+whiptail --title "Load Balancer" --yesno "Do you want to install a load balancer?" 10 60
+LOAD_BALANCER=$?
+
+# If a load balancer should be installed
+if [ $LOAD_BALANCER -eq 0 ]; then
+    # Install the load balancer
+    apt-get install -y haproxy
+
+    # Configure the load balancer
+    echo "frontend k8s-api" >/etc/haproxy/haproxy.cfg
+    echo "    bind *:6443" >>/etc/haproxy/haproxy.cfg
+    echo "    default_backend k8s-api" >>/etc/haproxy/haproxy.cfg
+    echo "" >>/etc/haproxy/haproxy.cfg
+    echo "backend k8s-api" >>/etc/haproxy/haproxy.cfg
+    echo "    balance roundrobin" >>/etc/haproxy/haproxy.cfg
+    echo "    server master1
+    $(hostname -I | awk '{print $1}'):6443 check" >>/etc/haproxy/haproxy.cfg
+
+    # Restart the load balancer
+    systemctl restart haproxy
+fi
+
+# ------- Dashboard -------
+# Ask user via whiptail if the dashboard should be installed
+whiptail --title "Dashboard" --yesno "Do you want to install the dashboard?" 10 60
+DASHBOARD=$?
+
+# If the dashboard should be installed
+if [ $DASHBOARD -eq 0 ]; then
+    # Install the dashboard
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
+fi
+
+
 
 # ------- Join Cluster -------
 # Ask user via whiptail if a node should join the cluster, but only if the node is not the master
@@ -233,3 +275,6 @@ if [ $REBOOT -eq 0 ]; then
     # Reboot the system
     reboot
 fi
+
+# One liner to start script with curl
+# curl -s https://raw.githubusercontent.com/julianortlieb/k8s-install/main/k8s-install.sh | bash
