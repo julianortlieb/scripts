@@ -49,6 +49,9 @@ if [ $SWAP_ENABLED -gt 1 ]; then
 
     # Comment out the swap line in /etc/fstab
     sed -i '/swap/s/^/#/' /etc/fstab
+
+    # Echo a message to the user
+    echo "[Script] Swap is disabled"
 fi
 
 # ------- Docker -------
@@ -74,18 +77,21 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # ------- Install CRI-Dockerd -------
-# Get latest deb-Package from github https://github.com/Mirantis/cri-dockerd/releases/
-# If the system is debian bookworm
-if [ "$(lsb_release -cs)" == "bookworm" ]; then
-    # Download with curl and install with dpkg
-    curl -LO https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.10/cri-dockerd_0.3.10.3-0.debian-bookworm_amd64.deb
-    dpkg -i cri-dockerd_0.3.10.3-0.debian-bookworm_amd64.deb
+# Check if cri-dockerd is not installed
+if ! dpkg -s cri-dockerd &> /dev/null; then
+    # Get latest deb-Package from GitHub based on the system version
+    if [ "$(lsb_release -cs)" == "bookworm" ]; then
+        # Download with curl and install with dpkg
+        curl -LO https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.10/cri-dockerd_0.3.10.3-0.debian-bookworm_amd64.deb
+        dpkg -i cri-dockerd_0.3.10.3-0.debian-bookworm_amd64.deb
+    elif [ "$(lsb_release -cs)" == "bullseye" ]; then
+        # Download with curl and install with dpkg
+        curl -LO https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.10/cri-dockerd_0.3.10.3-0.debian-bullseye_amd64.deb
+        dpkg -i cri-dockerd_0.3.10.3-0.debian-bullseye_amd64.deb
+    fi
 
-# Else if the system is debian bullseye
-elif [ "$(lsb_release -cs)" == "bullseye" ]; then
-    # Download with curl and install with dpkg
-    curl -LO https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.10/cri-dockerd_0.3.10.3-0.debian-bullseye_amd64.deb
-    dpkg -i cri-dockerd_0.3.10.3-0.debian-bullseye_amd64.deb
+    # Echo a message to the user
+    echo "[Script] CRI-Dockerd is installed"
 fi
 
 # ------- Configure cgroup driver -------
