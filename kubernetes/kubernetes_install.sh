@@ -255,7 +255,7 @@ fi
 
 # ------- Join Cluster -------
 # Ask user via whiptail if a node should join the cluster, but only if the node is not the master
-if [ $CREATE_CLUSTER -eq 0 ] && [ "$(hostname)" != "master" ]; then
+if [ $CREATE_CLUSTER -eq 1 ] && [ "$(hostname)" != "master" ]; then
     whiptail --title "Join Cluster" --yesno "Do you want to join the cluster?" 10 60
     JOIN_CLUSTER=$?
 fi
@@ -285,6 +285,3 @@ if [ $REBOOT -eq 0 ]; then
     # Reboot the system
     reboot
 fi
-
-# One liner to start script with curl
-# curl -s https://raw.githubusercontent.com/julianortlieb/k8s-install/main/k8s-install.sh | bash
