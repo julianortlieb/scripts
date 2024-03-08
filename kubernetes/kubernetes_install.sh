@@ -57,7 +57,7 @@ fi
 # ------- Docker -------
 # Install docker
 # Check if Docker is already installed
-if ! command -v docker &> /dev/null; then
+if ! command -v docker &>/dev/null; then
     # Add Docker's official GPG key:
     apt-get update
     apt-get install ca-certificates curl
@@ -78,7 +78,7 @@ fi
 
 # ------- Install CRI-Dockerd -------
 # Check if cri-dockerd is not installed
-if ! dpkg -s cri-dockerd &> /dev/null; then
+if ! dpkg -s cri-dockerd &>/dev/null; then
     # Get latest deb-Package from GitHub based on the system version
     if [ "$(lsb_release -cs)" == "bookworm" ]; then
         # Download with curl and install with dpkg
@@ -207,8 +207,8 @@ if [ $CREATE_CLUSTER -eq 0 ]; then
 
     # Copy the kubectl configuration to the user's home directory and create folder if it does not exist
     mkdir -p $HOME/.kube
-    cp -i /etc/kubernetes/admin.conf $HOME/
-    chown $(id -u):$(id -g) $HOME/admin.conf
+    cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
     export KUBECONFIG=$HOME/admin.conf
 
     # Apply the pod network
@@ -252,8 +252,6 @@ if [ $DASHBOARD -eq 0 ]; then
     # Install the dashboard
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
 fi
-
-
 
 # ------- Join Cluster -------
 # Ask user via whiptail if a node should join the cluster, but only if the node is not the master
