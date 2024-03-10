@@ -35,5 +35,17 @@ else
   echo "An error occurred"
 fi
 
+# Ask the user if the wol should be enabled permanently
+if (whiptail --title "Wake on LAN" --yesno "Do you want to enable Wake on LAN permanently?" 10 60) then
+  # Add the command to the rc.local file
+  echo "ethtool -s $interface wol g" >> /etc/rc.local
+  # Check if the command was successful
+  if [ $? -eq 0 ]; then
+    echo "Wake on LAN has been enabled permanently"
+  else
+    echo "An error occurred"
+  fi
+fi
+
 # Exit the script
 exit
