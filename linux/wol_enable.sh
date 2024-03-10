@@ -13,10 +13,11 @@ if [ "$EUID" -ne 0 ]
     exit
 fi
 
-# Get possible interfaces
+# Get possible interfaces and their IP addresses
 while IFS= read -r line; do
-    interfaces+=("$line")
-done < <(ip link show | grep -oP '^\d+:\s+\K[^:]+')
+    ip_address=$(ip -o -4 addr list $line | awk '{print $4}' | cut -d/ -f1)
+    interfaces+=("$line" "$ip_address")
+done < <(ip link show | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}')
 
 # Ask the user for the interface to enable Wake on LAN with Whiptail
 interface=$(whiptail --title "Wake on LAN" --menu "Wählen Sie die Schnittstelle aus, um Wake on LAN zu aktivieren" 15 60 4 "${interfaces[@]}" 3>&1 1>&2 2>&3)
