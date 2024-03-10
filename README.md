@@ -1,5 +1,11 @@
 # Usefull Scripts
 
+## Ssh
+### Copy id
+```bash
+curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/main/ssh/ssh_copy_pub.sh | bash
+```
+
 ## Linux
 ### Enable WOL
 ```bash
