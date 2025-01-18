@@ -21,5 +21,10 @@ curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/main/kubernete
 ## Wordpress
 ### Backup
 ```bash
-curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/wordpress_backup/wordpress/backup.sh | bash
+curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/main/wordpress/backup.sh | bash
+```
+
+### Restore
+```bash
+curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/main/wordpress/restore.sh | bash
 ```
