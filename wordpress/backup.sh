@@ -83,8 +83,8 @@ if [ ! -d $backup_dir ]; then
   mkdir -p $backup_dir
 fi
 
-# Backup the WordPress files
-tar -czf $backup_dir/wordpress_files_$(date +%Y%m%d).tar.gz $wordpress_dir
+# Backup the WordPress files. Remote the leading directory with -C
+tar -czf $backup_dir/wordpress_files_$(date +%Y%m%d).tar.gz -C $wordpress_dir .
 
 # Check if the command was successful
 if [ $? -eq 0 ]; then
@@ -103,8 +103,8 @@ else
   echo "An error occurred"
 fi
 
-# Tar both files
-tar -czf $backup_dir/wordpress_$(date +%Y%m%d).tar.gz $backup_dir/wordpress_files_$(date +%Y%m%d).tar.gz $backup_dir/wordpress_db_$(date +%Y%m%d).sql
+# Tar both files. The -C option changes to the directory before adding the following files
+tar -czf $backup_dir/wordpress_$(date +%Y%m%d).tar.gz -C $backup_dir wordpress_files_$(date +%Y%m%d).tar.gz wordpress_db_$(date +%Y%m%d).sql
 
 # Remove the individual files
 rm $backup_dir/wordpress_files_$(date +%Y%m%d).tar.gz $backup_dir/wordpress_db_$(date +%Y%m%d).sql
