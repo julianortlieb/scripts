@@ -25,13 +25,15 @@ if [ $? -eq 1 ]; then
   exit
 fi
 
-# Create the backup directory if it does not exist
-if [ ! -d $backup_dir ]; then
-  mkdir -p $backup_dir
-fi
+# Get the WordPress database user and password from wp-config.php
+wp_config=$wordpress_dir/wp-config.php
+db_user=$(grep DB_USER $wp_config | cut -d \' -f 4)
+db_password=$(grep DB_PASSWORD $wp_config | cut -d \' -f 4)
+db_name=$(grep DB_NAME $wp_config | cut -d \' -f 4)
+db_host=$(grep DB_HOST $wp_config | cut -d \' -f 4)
 
-# Ask the user for the database user with Whiptail. Prefill with root
-db_user=$(whiptail --title "Backup WordPress" --inputbox "Enter the database user" 10 60
+# Ask the user for the database user with Whiptail. Prefill with the user from wp-config.php
+db_user=$(whiptail --title "Backup WordPress" --inputbox "Enter the database user" 10 60 $db_user 3>&1 1>&2 2>&3)
 
 # Check if the user has canceled the dialog
 if [ $? -eq 1 ]; then
@@ -39,8 +41,8 @@ if [ $? -eq 1 ]; then
   exit
 fi
 
-# Ask the user for the database password with Whiptail
-db_password=$(whiptail --title "Backup WordPress" --passwordbox "Enter the database password" 10 60 3>&1 1>&2 2>&3)
+# Ask the user for the database password with Whiptail. Prefill with the password from wp-config.php
+db_password=$(whiptail --title "Backup WordPress" --passwordbox "Enter the database password" 10 60 $db_password 3>&1 1>&2 2>&3)
 
 # Check if the user has canceled the dialog
 if [ $? -eq 1 ]; then
@@ -51,7 +53,7 @@ fi
 # Get all databases
 databases=$(mysql -u $db_user -p$db_password -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)")
 
-# Ask the user for the WordPress database with Whiptail
+# Ask the user for the WordPress database with Whiptail. Prefill with the database from wp-config.php
 wordpress_db=$(whiptail --title "Backup WordPress" --menu "Select the WordPress database" 15 60 4 "${databases[@]}" 3>&1 1>&2 2>&3)
 
 # Check if the user has canceled the dialog
@@ -63,6 +65,11 @@ fi
 #---------------------------------------------------------
 # Backup WordPress files and database
 #---------------------------------------------------------
+
+# Create the backup directory if it does not exist
+if [ ! -d $backup_dir ]; then
+  mkdir -p $backup_dir
+fi
 
 # Backup the WordPress files
 tar -czf $backup_dir/wordpress_files_$(date +%Y%m%d).tar.gz $wordpress_dir
