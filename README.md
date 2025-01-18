@@ -17,3 +17,9 @@ curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/main/linux/wol
 ```bash
 curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/main/kubernetes/kubernetes_install.sh | bash
 ```
+
+## Wordpress
+### Backup
+```bash
+curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/wordpress_backup/wordpress/backup.sh | bash
+```
