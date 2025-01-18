@@ -54,7 +54,7 @@ fi
 databases=$(mysql -u $db_user -p$db_password -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)")
 
 # Ask the user for the WordPress database with Whiptail. Prefill with the database from wp-config.php
-wordpress_db=$(whiptail --title "Backup WordPress" --menu "Select the WordPress database" 15 60 4 "${databases[@]}" 3>&1 1>&2 2>&3)
+wordpress_db=$(whiptail --title "Backup WordPress" --menu "Select the WordPress database" 15 60 4 10 "${databases[@]}" 3>&1 1>&2 2>&3)
 
 # Check if the user has canceled the dialog
 if [ $? -eq 1 ]; then
