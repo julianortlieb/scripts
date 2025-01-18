@@ -25,7 +25,7 @@ if [ $? -eq 1 ]; then
   exit
 fi
 
-# Get the WordPress database user and password from wp-config.php
+# Get the WordPress database user and password from wp-config.php. If the file does not exist, empty strings are returned
 wp_config=$wordpress_dir/wp-config.php
 db_user=$(grep DB_USER $wp_config | cut -d \' -f 4)
 db_password=$(grep DB_PASSWORD $wp_config | cut -d \' -f 4)
@@ -53,8 +53,11 @@ fi
 # Get all databases
 databases=$(mysql -u $db_user -p$db_password -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)")
 
+# Get the databases in a two dimensional array. The first column is the database name and the second column is the database name for Whiptail
+databases=($(for database in ${databases[@]}; do echo $database $database; done))
+
 # Ask the user for the WordPress database with Whiptail. Prefill with the database from wp-config.php
-wordpress_db=$(whiptail --title "Backup WordPress" --menu "Select the WordPress database" 15 60 4 10 "${databases[@]}" 3>&1 1>&2 2>&3)
+wordpress_db=$(whiptail --title "Backup WordPress" --menu "Select the WordPress database" 15 60 4 "${databases[@]}" 3>&1 1>&2 2>&3)
 
 # Check if the user has canceled the dialog
 if [ $? -eq 1 ]; then
