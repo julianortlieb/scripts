@@ -62,6 +62,14 @@ if [ $? -eq 1 ]; then
   exit
 fi
 
+# Ask the user if ready to backup with Whiptail and abort if not
+if (whiptail --title "Backup WordPress" --yesno "Ready to backup WordPress?" 10 60) then
+  echo "Starting backup"
+else
+  echo "Backup aborted"
+  exit
+fi
+
 #---------------------------------------------------------
 # Backup WordPress files and database
 #---------------------------------------------------------
