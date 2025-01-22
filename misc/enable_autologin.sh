@@ -13,6 +13,19 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
+# Ask if this is a proxmox lxc container with Whiptail
+if (whiptail --title "Enable autologin" --yesno "Is this a Proxmox LXC container?" 10 60) then
+    # Check if the user has canceled the dialog
+    if [ $? -eq 1 ]; then
+    echo "User canceled the dialog"
+    exit
+    fi
+else
+    echo "This is not a Proxmox LXC container"
+    exit
+fi
+
+
 # Get user list from /etc/passwd
 users=$(cut -d: -f1 /etc/passwd)
 
@@ -28,17 +41,14 @@ if [ $? -eq 1 ]; then
   exit
 fi
 
-mkdir -p /etc/systemd/system/getty@.service.d/
+mkdir -p /etc/systemd/system/container-getty@.service.d
 
 # Create the autologin service
-cat <<EOF > /etc/systemd/system/getty@.service.d/autologin.conf
+cat <<EOF > /etc/systemd/system/container-getty@.service.d/override.conf
 [Service]
 ExecStart=
-ExecStart=-/sbin/agetty --autologin $user --noclear %I $TERM
+ExecStart=-/sbin/agetty --autologin $user --noclear --keep-baud tty%I 115200,38400,9600 \$TERM
 EOF
-
-# Reload systemd
-systemctl daemon-reload
 
 # Check if the command was successful
 if [ $? -eq 0 ]; then
