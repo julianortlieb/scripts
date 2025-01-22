@@ -28,6 +28,7 @@ curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/main/wordpress
 ```bash
 curl -sSL https://raw.githubusercontent.com/julianortlieb/scripts/main/wordpress/restore.sh | bash
 ```
+## Misc
 
 ### Autologin
 ```bash
